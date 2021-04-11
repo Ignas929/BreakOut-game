@@ -1,2 +1,0 @@
-# BreakOut-game
-paddle game
