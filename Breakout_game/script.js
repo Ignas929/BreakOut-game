@@ -1,13 +1,11 @@
 var canvas = document.getElementById('myCanvas');
 var ctx = canvas.getContext('2d');
 
-const ball2 = {
+const ball = {
   leftCornerX: (canvas.width/2) + Math.floor(Math.random()*41)-10,
   leftCornerY: (canvas.height-30) + Math.floor(Math.random()*41)-10,
   size: 34,
   speed: 6,
-  horizontalMovementDirection: 1, // default right
-  verticalMovementDirection: -1,  // default up
   img: (function() {
     var img = new Image();
     img.src = 'ball.jpg';
@@ -16,10 +14,9 @@ const ball2 = {
 };
 
 var x = (canvas.width/2) + Math.floor(Math.random()*41)-10;
-var y = (canvas.height-30) + Math.floor(Math.random()*41)-10;;
-var dx = 6;
-var dy = -6;
-var ballRadius = 34;
+var y = (canvas.height-30) + Math.floor(Math.random()*41)-10;
+var horizontalMovement = ball.speed;
+var verticalMovement = -1 * ball.speed;					
 var paddleHeight = 10;
 var paddleWidth = 75;
 var paddleX = (canvas.width - paddleWidth)/2;
@@ -39,8 +36,7 @@ var level = 1;
 var maxLevel = 5;
 var pause = false;
 var bricks = [];
-var ball = new Image();
-ball.src = 'ball.jpg'
+
 
 initBricks();
 
@@ -102,7 +98,7 @@ function mouseMoveHandler(e){
 }
 
 function drawBall(){
-  ctx.drawImage(ball2.img, x, y, ballRadius, ballRadius);
+  ctx.drawImage(ball.img, x, y, ball.size, ball.size);
 }
 
 function drawPaddle(){
@@ -119,10 +115,10 @@ function collisionDetect(){
       var b = bricks[c][r];
       if (b.status == 1) {
         if (x > b.x && x < b.x + brickWidth && y > b.y && y < b.y + brickHeight) {
-          dy = -dy;
+          verticalMovement = -verticalMovement;
           b.status = 0;
           score++;
-          if (score == brickRowCount*brickColumnCount){
+          if (score == 1/*brickRowCount*brickColumnCount*/){
             if (level === maxLevel){
               alert("Victory!");
               document.location.reload();
@@ -132,9 +128,9 @@ function collisionDetect(){
               brickRowCount++;
               initBricks();
               score = 0;
-              dx += 2;
-              dy = -dy;
-              dy -= 2;
+              horizontalMovement += 2;
+              verticalMovement = -verticalMovement;
+              verticalMovement -= 2;
               x = (canvas.width/2) + Math.floor(Math.random()*41)-10;
               y = (canvas.height-30) + Math.floor(Math.random()*41)-10;
               paddleX = (canvas.width-paddleWidth)/2;
@@ -191,11 +187,11 @@ function draw(){
   drawLevel();
   collisionDetect();
 
-  if (y + dy < ballRadius){
-    dy = -dy
-  } else if (y + dy > canvas.height-ballRadius){
+  if (y + verticalMovement < ball.size){
+    verticalMovement = -verticalMovement
+  } else if (y + verticalMovement > canvas.height-ball.size){
     if( (x > paddleX) && (x < paddleX + paddleWidth) ){
-      dy = -dy;
+      verticalMovement = -verticalMovement;
     }
     else{
       if (!lives){
@@ -209,12 +205,8 @@ function draw(){
       }
     }
   }
-  if ( (x + dx + ballRadius/2 < 0) || (x + (ballRadius/2 )+ dx > canvas.width) ){
-
-    console.log("x: "+x);
-    console.log("dx: "+dx);
-
-    dx = -dx
+  if ( (x + horizontalMovement + ball.size/2 < 0) || (x + (ball.size/2 )+ horizontalMovement > canvas.width) ){
+    horizontalMovement = -horizontalMovement;
   }
 
   if (rightButton && (paddleX < (canvas.width - paddleWidth)) ){
@@ -223,8 +215,8 @@ function draw(){
   else if (leftButton && (paddleX > 0) ){
     paddleX -= paddleSpeed ;
   }
-  x += dx;
-  y += dy;
+  x += horizontalMovement;
+  y += verticalMovement;
   if (!pause){
     requestAnimationFrame(draw);
   }
